@@ -1,0 +1,41 @@
+# Ambientes virtuais e dependências locais
+.venv/
+venv/
+env/
+ENV/
+.python-version
+.codex_deps/
+.agents/
+
+# Cache e artefatos de execução
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.ipynb_checkpoints/
+
+# Temporários do sistema e do projeto
+tmp/
+temp/
+*.tmp
+*.log
+
+# Dados brutos e intermediários
+data/raw/
+data/interim/
+data/external/
+datasets/raw/
+datasets/interim/
+raw/
+interim/
+
+# Saídas locais que não devem ser versionadas
+dist/
+build/
+*.egg-info/
