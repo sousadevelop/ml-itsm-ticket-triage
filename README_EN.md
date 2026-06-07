@@ -89,7 +89,13 @@ streamlit run app.py
 
 The browser will show a form for entering the ticket description and then return the category and priority predicted by the pipeline.
 
-## 7. Limitations
+## 7. Result
+When running the system, the result should be as shown below:
+![Call triage interface - Classification result](assets/screenshots/triage-ticket.jpeg)
+
+Link to view the official PoC deployment via web: https://triage-ai.streamlit.app/
+
+## 8. Limitations
 The system was designed as a proof of concept and has relevant limitations:
 
 - the training dataset is synthetic and small;
@@ -98,7 +104,7 @@ The system was designed as a proof of concept and has relevant limitations:
 - there is no integration with an ITSM queue, corporate API, or persistent storage;
 - the mock fallback exists only for demonstration, not for operational use.
 
-## 8. Reproducibility
+## 9. Reproducibility
 For minimum reproducibility:
 
 - run `train.py` to generate the trained artifact;
@@ -106,7 +112,7 @@ For minimum reproducibility:
 - preserve the `pipeline_itsm.joblib` file when you want to reproduce the already fitted inference pipeline;
 - record dependency versions in an environment file or `requirements.txt` if the submission requires additional traceability.
 
-## 9. BibTeX References
+## 10. BibTeX References
 ```bibtex
 @misc{scikit-learn,
   author       = {{Scikit-learn developers}},
@@ -141,5 +147,5 @@ For minimum reproducibility:
 }
 ```
 
-## 10. Translation Note
+## 11. Translation Note
 The translation into another language should be produced from this English README, preserving the modular structure and the BibTeX citations.

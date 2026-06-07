@@ -89,7 +89,15 @@ streamlit run app.py
 
 Le navigateur affichera un formulaire pour saisir la description du ticket, puis renverra la catégorie et la priorité prédites par le pipeline.
 
-## 7. Limitations
+### 7. Résultat
+
+Lors de l'exécution du système, le résultat devrait être celui affiché ci-dessous :
+
+![Interface de triage des appels - Résultat de la classification](assets/screenshots/triage-ticket.jpeg)
+
+Lien pour consulter le déploiement officiel de la preuve de concept (PoC) via le Web : https://triage-ai.streamlit.app/
+
+## 8. Limitations
 Le système a été conçu comme une preuve de concept et présente des limites importantes :
 
 - la base d’entraînement est synthétique et réduite ;
@@ -98,7 +106,7 @@ Le système a été conçu comme une preuve de concept et présente des limites 
 - il n’existe pas d’intégration avec une file ITSM, une API d’entreprise ou un stockage persistant ;
 - le fallback simulé n’existe que pour la démonstration, et non pour un usage opérationnel.
 
-## 8. Reproductibilité
+## 9. Reproductibilité
 Pour une reproductibilité minimale :
 
 - exécutez `train.py` pour générer l’artefact entraîné ;
@@ -106,7 +114,7 @@ Pour une reproductibilité minimale :
 - préservez le fichier `pipeline_itsm.joblib` lorsque vous souhaitez reproduire l’inférence déjà ajustée ;
 - consignez les versions des dépendances dans un fichier d’environnement ou `requirements.txt` si la soumission exige une traçabilité supplémentaire.
 
-## 9. Références BibTeX
+## 10. Références BibTeX
 ```bibtex
 @misc{scikit-learn,
   author       = {{Scikit-learn developers}},
@@ -141,5 +149,5 @@ Pour une reproductibilité minimale :
 }
 ```
 
-## 10. Note de traduction
+## 11. Note de traduction
 La traduction vers une autre langue doit être réalisée à partir de ce README en français, en préservant la structure modulaire et les citations BibTeX.

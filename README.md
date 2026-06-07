@@ -89,7 +89,13 @@ streamlit run app.py
 
 O navegador exibirá um formulário para entrada da descrição do chamado e, em seguida, retornará categoria e prioridade previstas pelo pipeline.
 
-## 7. Limitações
+## 7. Resultado
+Ao executar o sistema o resultado deverá ser como exibido abaixo:
+![Interface de triagem de chamados - Resultado da classificação](assets/screenshots/triage-ticket.jpeg)
+
+Link para visualizar o deploy da PoC oficial via web: https://triage-ai.streamlit.app/
+
+## 8. Limitações
 O sistema foi concebido como prova de conceito e apresenta limitações relevantes:
 
 - a base de treinamento é sintética e pequena;
@@ -98,7 +104,7 @@ O sistema foi concebido como prova de conceito e apresenta limitações relevant
 - não há integração com fila ITSM, API corporativa ou armazenamento persistente;
 - o fallback por mock existe apenas para demonstração, não para uso operacional.
 
-## 8. Reprodutibilidade
+## 9. Reprodutibilidade
 Para reprodutibilidade mínima:
 
 - execute `train.py` para gerar o artefato treinado;
@@ -106,7 +112,7 @@ Para reprodutibilidade mínima:
 - preserve o arquivo `pipeline_itsm.joblib` quando quiser reproduzir a inferência já ajustada;
 - registre as versões de dependências em um arquivo de ambiente ou `requirements.txt` caso a submissão exija rastreabilidade adicional.
 
-## 9. Referências BibTeX
+## 10. Referências BibTeX
 ```bibtex
 @misc{scikit-learn,
   author       = {{Scikit-learn developers}},
@@ -141,5 +147,5 @@ Para reprodutibilidade mínima:
 }
 ```
 
-## 10. Nota de tradução
+## 11. Nota de tradução
 A tradução para outro idioma deve ser feita a partir deste README em português, preservando a estrutura modular e as citações BibTeX.
