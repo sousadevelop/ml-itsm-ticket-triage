@@ -1,0 +1,10 @@
+```mermaid
+flowchart LR
+    A["Ticket ITSM (palavras-chave)"] --> B["Streamlit app"]
+    B --> C["Pipeline joblib"]
+    C --> D["TF-IDF unigramas"]
+    D --> E["Remoção manual de stop words"]
+    E --> F["MultiOutputClassifier + RandomForest"]
+    F --> G["Categoria prevista"]
+    F --> H["Prioridade prevista"]
+```

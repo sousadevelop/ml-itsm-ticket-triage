@@ -1,127 +1,134 @@
-# Triagem Automática de Chamados de TI
+# Triagem Automatica de Chamados de TI
 
 ## Resumo
-Este repositório implementa um protótipo de triagem automática de chamados de tecnologia da informação em português brasileiro, com foco em classificação simultânea de categoria e prioridade a partir de descrições textuais livres. A solução final combina `Scikit-Learn` para o treinamento e persistência do modelo com `Streamlit` para a interface interativa de inferência.
+Este repositorio organiza um prototipo academico e profissional de Machine Learning para triagem automatica de chamados de TI em portugues brasileiro. A aplicacao combina um pipeline `Scikit-Learn` treinado sobre tickets sinteticos com uma interface `Streamlit` para classificacao simultanea de categoria e prioridade.
 
-## 1. Visão geral
-O fluxo do projeto foi organizado em duas etapas principais:
+## Problema resolvido
+Centrais de suporte frequentemente recebem descricoes curtas, ruidosas e heterogeneas de incidentes e requisicoes. O objetivo deste projeto e reduzir o tempo inicial de roteamento, propondo uma classificacao automatica baseada em palavras-chave tecnicas de ITSM, sem depender de frases completas ou de contexto narrativo extenso.
 
-1. `train.py` cria um conjunto sintético de exemplos em pt-BR, ajusta um pipeline supervisionado e salva o artefato `pipeline_itsm.joblib`.
-2. `app.py` carrega o pipeline salvo com `joblib`, expõe a interface via `Streamlit` e executa inferência em tempo real.
+## Arquitetura da aplicacao
+O fluxo principal e composto por:
 
-Quando o arquivo do modelo não está presente no diretório raiz, o aplicativo usa uma rotina local de demonstração apenas para manter a interface operante. Em condições normais de execução, a predição deve ser feita exclusivamente pelo artefato treinado.
+- entrada textual no `app.py`;
+- carregamento do artefato `pipeline_itsm.joblib` com `@st.cache_resource`;
+- vetorizacao com `TfidfVectorizer` em unigramas;
+- remocao manual de stop words em portugues;
+- classificacao multioutput com `MultiOutputClassifier(RandomForestClassifier)`;
+- retorno simultaneo de `categoria` e `prioridade`.
 
-## 2. Arquitetura final
-A solução final adota a seguinte cadeia de processamento:
+O diagrama de arquitetura esta em [assets/diagrams/architecture.mmd](</C:/Users/victt/OneDrive/Documentos/Triagem Automática de Chamados de TI/assets/diagrams/architecture.mmd>).
 
-- entrada textual do chamado;
-- vetorização com `TfidfVectorizer` em unigramas;
-- remoção manual de stop words em português;
-- classificação multi-rótulo com `MultiOutputClassifier(RandomForestClassifier)`;
-- persistência do pipeline com `joblib.dump`;
-- carregamento sob demanda em `Streamlit` com `@st.cache_resource`;
-- exibição dos resultados de categoria e prioridade em componentes `metric`.
+## Fluxo de classificacao
+1. O usuario informa palavras-chave curtas do incidente, como `vpn falha mfa dns`.
+2. O texto e normalizado e transformado em vetor TF-IDF.
+3. O classificador multioutput estima a categoria operacional e a prioridade do ticket.
+4. A interface exibe o resultado imediatamente para apoio ao roteamento inicial.
 
-Em termos práticos, o modelo recebe apenas a descrição do incidente como entrada. Os rótulos de saída são mantidos em colunas separadas para evitar vazamento de informação e preservar a separação entre atributos e alvo.
+## Tipos de entrada e saida
+Entrada:
 
-## 3. Estrutura de arquivos
+- texto livre curto com jargoes de ITSM;
+- exemplos: `reset senha ad`, `tela azul memoria`, `outlook erro smtp`.
+
+Saida:
+
+- `categoria`: classe funcional prevista;
+- `prioridade`: nivel previsto para tratamento inicial.
+
+Exemplos estruturados estao em [examples/sample_ticket.json](</C:/Users/victt/OneDrive/Documentos/Triagem Automática de Chamados de TI/examples/sample_ticket.json>) e [examples/sample_prediction.json](</C:/Users/victt/OneDrive/Documentos/Triagem Automática de Chamados de TI/examples/sample_prediction.json>).
+
+## Estrutura do repositorio
 ```text
 .
-├── app.py
-├── train.py
-├── pipeline_itsm.joblib
-├── README.md
-└── .gitignore
+|-- app.py
+|-- train.py
+|-- requirements.txt
+|-- pipeline_itsm.joblib
+|-- SECURITY.md
+|-- CONTRIBUTING.md
+|-- .env.example
+|-- examples/
+|-- assets/diagrams/
+|-- data/
+|-- models/
+`-- docs/
 ```
 
-Observação: o arquivo `pipeline_itsm.joblib` é o artefato treinado consumido pelo aplicativo. O arquivo `.gitignore` foi configurado para isolar ambientes virtuais, caches, dependências temporárias e diretórios de dados brutos.
-
-## 4. Metodologia
-### 4.1 Base sintética
-O treinamento utiliza um conjunto sintético em português brasileiro contendo descrições típicas de chamados de suporte, com pares de saída para `categoria` e `prioridade`. O objetivo é demonstrar uma cadeia de inferência reproduzível, e não substituir bases institucionais reais.
-
-### 4.2 Representação textual
-As descrições são transformadas por `TfidfVectorizer` com:
-
-- normalização para minúsculas;
-- remoção de acentuação;
-- n-gramas restritos a 1 termo;
-- lista manual de stop words em português voltada a conectivos e termos funcionais de baixa informação.
-
-Essa escolha privilegia palavras-chave técnicas curtas e reduz a dependência de frases completas, o que tende a aumentar a robustez frente a variações de redação e a diminuir viés introduzido por conectivos ou formulações genéricas.
-
-### 4.3 Modelo supervisionado
-O classificador utilizado é `MultiOutputClassifier` encapsulando `RandomForestClassifier`. Essa combinação permite prever mais de um alvo a partir do mesmo texto de entrada, sem exigir arquiteturas externas para cada rótulo.
-
-### 4.4 Persistência e inferência
-Após o ajuste, o pipeline é salvo em disco com `joblib`. O aplicativo Streamlit reutiliza o mesmo artefato, evitando divergência entre treino e uso. O carregamento é memoizado com `@st.cache_resource` para reduzir custo de inicialização.
-
-## 5. Controle de data leakage
-O código do treinamento foi estruturado para minimizar vazamento de dados:
-
-- somente o campo textual `texto` é usado como entrada do modelo;
-- as saídas `categoria` e `prioridade` permanecem separadas como alvos;
-- a vetorização faz parte do pipeline, o que evita reutilização indevida de transformações já ajustadas em dados externos ao fluxo;
-- o conjunto empregado é sintético e fechado, sem mistura com dados de teste vindos de produção.
-
-Como limitação metodológica, este repositório não implementa divisão formal em treino, validação e teste, nem validação cruzada. Em uma submissão experimental completa, essa etapa deve ser acrescentada com métricas reportadas de forma separada.
-
-## 6. Execução
-### 6.1 Ambiente
-Recomenda-se Python 3.11 ou superior, com as bibliotecas:
-
-- `scikit-learn`
-- `streamlit`
-- `joblib`
-- `numpy`
-
-### 6.2 Treinamento
+## Instalacao local
 ```bash
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
 python train.py
-```
-
-Esse comando gera ou atualiza `pipeline_itsm.joblib` no diretório raiz.
-
-### 6.3 Aplicação web
-```bash
 streamlit run app.py
 ```
 
-O navegador exibirá um formulário para entrada da descrição do chamado e, em seguida, retornará categoria e prioridade previstas pelo pipeline.
+## Deploy no Streamlit Cloud
+1. Publique o repositorio no GitHub.
+2. Configure o app no Streamlit Cloud apontando para `app.py`.
+3. Garanta que `requirements.txt` esteja na raiz do projeto.
+4. Opcionalmente defina variaveis com base em `.env.example` apenas para ambiente de demonstracao.
+5. Refaça o deploy sempre que o pipeline ou dependencias mudarem.
 
-## 7. Limitações
-O sistema foi concebido como prova de conceito e apresenta limitações relevantes:
+## Metodologia de treinamento
+O treinamento usa um conjunto sintetico com jargoes de suporte tecnico e operacoes de TI. O arquivo [train.py](</C:/Users/victt/OneDrive/Documentos/Triagem Automática de Chamados de TI/train.py>) separa explicitamente o texto dos labels, evitando vazamento de dados entre atributos e alvos.
 
-- a base de treinamento é sintética e pequena;
-- a generalização para linguagem real de operação ainda não foi mensurada;
-- não há calibragem explícita de probabilidades;
-- não há integração com fila ITSM, API corporativa ou armazenamento persistente;
-- o fallback por mock existe apenas para demonstração, não para uso operacional.
+### Representacao textual
+O modulo textual foi desenhado para priorizar robustez lexical:
 
-## 8. Reprodutibilidade
-Para reprodutibilidade mínima:
+- normalizacao para minusculas;
+- remocao de acentos;
+- `TfidfVectorizer` com unigramas apenas;
+- lista manual de stop words em portugues voltada a conectivos e termos de baixa informacao.
 
-- execute `train.py` para gerar o artefato treinado;
-- mantenha a mesma versão de Python e das bibliotecas;
-- preserve o arquivo `pipeline_itsm.joblib` quando quiser reproduzir a inferência já ajustada;
-- registre as versões de dependências em um arquivo de ambiente ou `requirements.txt` caso a submissão exija rastreabilidade adicional.
+Essa configuracao favorece palavras-chave tecnicas curtas e reduz o vies de classificacao baseado em formulacoes longas ou frases muito especificas.
 
-## 9. Referências BibTeX
+### Modelo
+O classificador utiliza `MultiOutputClassifier` com `RandomForestClassifier`, permitindo inferencia conjunta de categoria e prioridade no mesmo pipeline.
+
+## Resultados
+A interface de demonstracao abaixo registra uma classificacao executada localmente pelo aplicativo Streamlit.
+
+![Classificacao Streamlit](assets/screenshots/streamlit-classification.png)
+
+## Limitacoes do modelo
+
+- a base de treinamento e sintetica e nao substitui tickets reais curados;
+- nao ha avaliacao estatistica formal com divisao treino-validacao-teste neste estado do projeto;
+- o modelo nao incorpora contexto temporal, historico do usuario ou relacoes entre incidentes;
+- o comportamento depende fortemente da cobertura do vocabulario tecnico usado na base sintetica.
+
+## Riscos eticos em ambientes de suporte
+
+- classificacoes incorretas podem induzir roteamento inadequado e aumentar tempo de resposta;
+- vocabularios sinteticos podem refletir vieses do curador e sub-representar equipes ou servicos;
+- previsoes automaticas nao devem substituir analise humana em cenarios criticos;
+- logs, exemplos e screenshots devem permanecer sanitizados para evitar exposicao operacional.
+
+## Proximos passos
+
+- adicionar avaliacao quantitativa com metricas por classe;
+- introduzir testes automatizados de regressao para o pipeline;
+- incorporar configuracao de classes e prioridades por arquivo externo;
+- adicionar API de inferencia para integracao com plataformas ITSM;
+- avaliar modelos lineares e embeddings leves para comparacao.
+
+## Bibliografia BibTeX
 ```bibtex
-@misc{scikit-learn,
-  author       = {{Scikit-learn developers}},
-  title        = {Scikit-learn: Machine Learning in Python},
+@misc{python,
+  author       = {{Python Software Foundation}},
+  title        = {Python Language Reference},
   year         = {2026},
-  howpublished = {\url{https://scikit-learn.org/}},
-  note         = {Acessado em 07 jun. 2026}
+  howpublished = {\url{https://www.python.org/}},
+  note         = {Accessed 2026-06-07}
 }
 
-@misc{streamlit,
-  author       = {{Streamlit Inc.}},
-  title        = {Streamlit: The fastest way to build and share data apps},
+@misc{numpy,
+  author       = {{NumPy Developers}},
+  title        = {NumPy},
   year         = {2026},
-  howpublished = {\url{https://streamlit.io/}},
-  note         = {Acessado em 07 jun. 2026}
+  howpublished = {\url{https://numpy.org/}},
+  note         = {Accessed 2026-06-07}
 }
 
 @misc{joblib,
@@ -129,17 +136,22 @@ Para reprodutibilidade mínima:
   title        = {joblib: Python utilities for lightweight pipelining},
   year         = {2026},
   howpublished = {\url{https://joblib.readthedocs.io/}},
-  note         = {Acessado em 07 jun. 2026}
+  note         = {Accessed 2026-06-07}
 }
 
-@misc{python,
-  author       = {{Python Software Foundation}},
-  title        = {Python Language Reference},
+@misc{scikit-learn,
+  author       = {{Scikit-learn developers}},
+  title        = {Scikit-learn: Machine Learning in Python},
   year         = {2026},
-  howpublished = {\url{https://www.python.org/}},
-  note         = {Acessado em 07 jun. 2026}
+  howpublished = {\url{https://scikit-learn.org/}},
+  note         = {Accessed 2026-06-07}
+}
+
+@misc{streamlit,
+  author       = {{Streamlit Inc.}},
+  title        = {Streamlit: The fastest way to build and share data apps},
+  year         = {2026},
+  howpublished = {\url{https://streamlit.io/}},
+  note         = {Accessed 2026-06-07}
 }
 ```
-
-## 10. Nota de tradução
-A tradução para outro idioma deve ser feita a partir deste README em português, preservando a estrutura modular e as citações BibTeX.

@@ -1,0 +1,9 @@
+{
+  "ticket_id": "DEMO-ITSM-001",
+  "input_text": "vpn falha mfa dns",
+  "prediction": {
+    "categoria": "rede_seguranca",
+    "prioridade": "media"
+  },
+  "model_artifact": "pipeline_itsm.joblib"
+}

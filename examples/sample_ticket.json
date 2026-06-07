@@ -1,0 +1,11 @@
+{
+  "ticket_id": "DEMO-ITSM-001",
+  "source": "portal_self_service",
+  "language": "pt-BR",
+  "text": "vpn falha mfa dns",
+  "metadata": {
+    "site": "filial-demo",
+    "service": "acesso-remoto",
+    "channel": "catalogo"
+  }
+}

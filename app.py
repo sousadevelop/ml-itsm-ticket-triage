@@ -80,11 +80,36 @@ def predict_ticket(text: str) -> dict[str, str]:
     return normalize_prediction(first)
 
 
+def get_demo_query_text() -> str:
+    value = st.query_params.get("q", "")
+    if isinstance(value, list):
+        return value[0] if value else ""
+    return str(value)
+
+
+def should_autorun_query() -> bool:
+    value = st.query_params.get("autorun", "0")
+    if isinstance(value, list):
+        value = value[0] if value else "0"
+    return str(value).strip().lower() in {"1", "true", "yes"}
+
+
 if "ticket_text" not in st.session_state:
     st.session_state.ticket_text = ""
 
 if "result" not in st.session_state:
     st.session_state.result = None
+
+if "query_bootstrap_done" not in st.session_state:
+    st.session_state.query_bootstrap_done = False
+
+if not st.session_state.query_bootstrap_done:
+    query_text = get_demo_query_text().strip()
+    if query_text:
+        st.session_state.ticket_text = query_text
+        if should_autorun_query():
+            st.session_state.result = predict_ticket(query_text)
+    st.session_state.query_bootstrap_done = True
 
 st.title("Triagem automatica de chamados")
 st.caption("Digite palavras-chave curtas do erro ou incidente para obter categoria e prioridade.")
